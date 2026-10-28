@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07386c">
+<title>Cuestionario | Mercado de derivados</title>
+<style>
+  :root {
+    color-scheme: light;
+    --navy: #07386c;
+    --blue: #1269b5;
+    --sky: #eaf5ff;
+    --pale: #f5f9ff;
+    --ink: #172e49;
+    --muted: #60738a;
+    --line: #d7e3f1;
+    --success: #15744c;
+    --error: #a32935;
+    --shadow: 0 18px 50px rgba(16, 57, 110, .09);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: linear-gradient(165deg, #e9f3ff, #f9fbff 56%, #e9f3ff); color: var(--ink); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.5; min-height: 100vh; }
+  .container { width: min(930px, calc(100% - 32px)); margin: 36px auto 60px; }
+  .hero { background: linear-gradient(115deg, #063466, #125fa6); border-radius: 22px 22px 0 0; color: white; padding: 32px clamp(20px, 5vw, 42px); }
+  .hero .eyebrow { text-transform: uppercase; letter-spacing: .13em; font-size: .76rem; color: #c8e2ff; font-weight: 750; margin: 0 0 10px; }
+  h1 { font-size: clamp(1.55rem, 4vw, 2.35rem); margin: 0 0 7px; letter-spacing: -.025em; line-height: 1.18; }
+  .hero p:last-child { margin: 0; color: #e0edfc; max-width: 710px; }
+  .shell { background: white; border: 1px solid var(--line); border-top: 0; border-radius: 0 0 22px 22px; box-shadow: var(--shadow); padding: clamp(20px, 5vw, 42px); }
+  .intro { display: flex; flex-wrap: wrap; gap: 14px; align-items: end; justify-content: space-between; margin-bottom: 28px; }
+  .intro label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: 5px; font-weight: 700; }
+  input[type=text] { width: min(100%, 365px); border: 1px solid #b4c9e0; padding: 11px 14px; border-radius: 10px; font-size: 1rem; color: var(--ink); background: white; }
+  input[type=text]:focus-visible, button:focus-visible, .option:focus-visible { outline: 3px solid #61b9ff; outline-offset: 3px; }
+  .chip { background: var(--sky); color: var(--navy); border-radius: 999px; padding: 8px 13px; font-size: .82rem; font-weight: 700; }
+  .progress-top { display: flex; justify-content: space-between; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; font-size: .91rem; font-weight: 650; }
+  .progress-rail { background: #e4edf8; height: 10px; border-radius: 50px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #086ab8, #32a1e8); width: 0%; transition: width .2s ease; }
+  .question-box { margin: 30px 0 18px; }
+  .category { display: inline-block; text-transform: uppercase; letter-spacing: .09em; color: #1162a7; background: var(--sky); font-weight: 800; font-size: .73rem; padding: 5px 11px; border-radius: 6px; }
+  h2 { font-size: clamp(1.18rem, 2.5vw, 1.5rem); line-height: 1.4; letter-spacing: -.015em; margin: 15px 0 22px; }
+  .answers { display: grid; gap: 10px; }
+  .option { width: 100%; text-align: left; padding: 15px 16px; background: #fff; border: 1.5px solid #d5e1ef; border-radius: 12px; display: flex; gap: 13px; align-items: center; color: var(--ink); cursor: pointer; font-size: .98rem; transition: background .16s, border-color .16s; }
+  .option:hover { background: #f5faff; border-color: #8ebce8; }
+  .option.selected { background: #e8f3ff; border-color: #1269b5; box-shadow: 0 0 0 1px #1269b5 inset; }
+  .letter { flex: 0 0 32px; height: 32px; display: inline-grid; place-items: center; background: #eaf1fa; border-radius: 8px; font-weight: 750; color: var(--navy); }
+  .option.selected .letter { background: var(--navy); color: white; }
+  .navigation { display: flex; justify-content: space-between; gap: 12px; margin-top: 28px; }
+  button.action { appearance: none; border: 0; cursor: pointer; border-radius: 10px; padding: 12px 20px; font-size: .96rem; font-weight: 740; }
+  .primary { background: var(--navy); color: white; }
+  .primary:hover { background: #10599c; }
+  .secondary { background: #e8f1fc; color: var(--navy); }
+  .secondary:hover { background: #d7e8fc; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  .note { margin: 20px 0 0; color: var(--muted); font-size: .84rem; }
+  .hidden { display: none !important; }
+  .result { text-align: center; background: var(--pale); padding: 26px 18px; border-radius: 16px; border: 1px solid var(--line); }
+  .score { font-size: clamp(2.5rem, 8vw, 4.4rem); font-weight: 850; color: var(--navy); line-height: 1.1; letter-spacing: -.05em; margin: 12px 0; }
+  .result h2 { margin: 0; }
+  .result p { margin: 6px 0; }
+  .result .meta { color: var(--muted); }
+  .review-heading { margin: 28px 0 12px; font-size: 1.27rem; }
+  .review-card { border: 1px solid var(--line); padding: 18px; border-radius: 12px; margin: 13px 0; background: white; }
+  .review-card.good { border-left: 5px solid var(--success); }
+  .review-card.bad { border-left: 5px solid var(--error); }
+  .review-card h3 { margin: 6px 0 10px; font-size: 1rem; }
+  .review-card p { margin: 6px 0; font-size: .92rem; }
+  .review-card .status { font-weight: 800; font-size: .77rem; }
+  .status.good { color: var(--success); }
+  .status.bad { color: var(--error); }
+  .explanation { padding: 12px 14px; background: var(--pale); border-radius: 8px; margin-top: 9px !important; }
+  footer { text-align: center; color: var(--muted); font-size: .82rem; margin-top: 18px; }
+  @media (max-width: 560px) { .container { width: calc(100% - 18px); margin-top: 10px; } .hero { border-radius: 15px 15px 0 0; } .intro, .navigation { flex-direction: column; align-items: stretch; } .intro input { width: 100%; } button.action { width: 100%; } .navigation .secondary { order: 2; } }
+  @media print { body { background: white; } .container { width: 100%; margin: 0; } .hero { border-radius: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .shell { box-shadow: none; border: 0; padding: 20px; } #exam, .intro, .navigation, .no-print, footer { display: none !important; } #results { display: block !important; } .review-card { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="hero">
+    <p class="eyebrow">Evaluación formativa · Finanzas</p>
+    <h1>Mercado de derivados</h1>
+    <p>Cuestionario interactivo de 15 preguntas sobre forwards, futuros, opciones, swaps, instrumentos avanzados y MexDer.</p>
+  </header>
+  <main class="shell">
+    <div class="intro" id="intro">
+      <div style="flex:1;min-width:225px">
+        <label for="studentName">Nombre del estudiante (opcional)</label>
+        <input type="text" id="studentName" maxlength="90" placeholder="Escribe tu nombre" autocomplete="name">
+      </div>
+      <span class="chip">15 reactivos · 1 punto cada uno</span>
+    </div>
+    <section id="exam" aria-label="Cuestionario">
+      <div class="progress-top"><span id="questionIndex">Pregunta 1 de 15</span><span id="answerCount">0 de 15 respondidas</span></div>
+      <div class="progress-rail" role="progressbar" id="progress" aria-label="Preguntas respondidas" aria-valuemin="0" aria-valuemax="15" aria-valuenow="0"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="question-box"><span class="category" id="category"></span><h2 id="questionText" tabindex="-1"></h2><div id="options" class="answers" role="group" aria-label="Opciones de respuesta"></div></div>
+      <nav class="navigation" aria-label="Navegación del cuestionario">
+        <button type="button" class="action secondary" id="previous">← Anterior</button>
+        <button type="button" class="action primary" id="next">Siguiente →</button>
+      </nav>
+      <p class="note">Selecciona una respuesta por pregunta. La calificación y las explicaciones se mostrarán al finalizar. Las respuestas no se envían ni se almacenan en un servidor.</p>
+    </section>
+    <section id="results" class="hidden" aria-live="polite" aria-label="Resultado y retroalimentación">
+      <div class="result"><h2>Resultado de la evaluación</h2><div class="score" id="score"></div><p id="resultMessage"></p><p class="meta" id="resultMeta"></p></div>
+      <h2 class="review-heading">Revisión de respuestas</h2>
+      <div id="review"></div>
+      <div class="navigation no-print"><button type="button" class="action secondary" id="restart">Reiniciar evaluación</button><button type="button" class="action primary" id="print">Imprimir resultados</button></div>
+    </section>
+  </main>
+  <footer>Material didáctico · Mercado de derivados · Caso de estudio con datos hipotéticos</footer>
+</div>
+<script>
+'use strict';
+const questions = [
+  {
+    topic: 'Fundamentos',
+    q: '¿Qué caracteriza a un derivado financiero?',
+    options: [
+      'Es un contrato cuyo valor depende de un activo, índice o variable de referencia.',
+      'Es un depósito bancario que siempre garantiza el capital.',
+      'Es una acción que otorga derechos de voto en una empresa.',
+      'Es un préstamo personal con una tasa fija por ley.'
+    ], correct: 0,
+    explanation: 'Los derivados son contratos cuyo valor depende de un subyacente, como una divisa, una tasa de interés, un índice o una materia prima.'
+  },
+  {
+    topic: 'Fundamentos',
+    q: '¿Cuál de los siguientes elementos puede actuar como subyacente de un derivado?',
+    options: ['La comisión de intermediación del bróker.', 'El tipo de cambio USD/MXN.', 'La firma del contrato.', 'La fecha de emisión de una factura.'], correct: 1,
+    explanation: 'El tipo de cambio es una variable financiera de referencia para forwards, futuros y opciones cambiarias, entre otros derivados.'
+  },
+  {
+    topic: 'Cobertura',
+    q: 'Una importadora mexicana pacta hoy el precio de compra de dólares que necesitará dentro de tres meses. ¿Cuál es su objetivo principal?',
+    options: ['Obtener derechos de voto en un banco.', 'Aumentar deliberadamente su exposición cambiaria.', 'Reducir la incertidumbre del costo en pesos.', 'Garantizar que el dólar bajará de precio.'], correct: 2,
+    explanation: 'La cobertura cambiaria permite fijar o limitar el costo futuro en pesos. No implica predecir ni controlar el movimiento del tipo de cambio.'
+  },
+  {
+    topic: 'Forwards',
+    q: '¿Qué característica es habitual en los contratos forward?',
+    options: ['Se negocian exclusivamente en una bolsa de valores.', 'Otorgan siempre un derecho sin obligación de ejercicio.', 'No exponen a las partes al riesgo de contraparte.', 'Sus condiciones pueden personalizarse entre las partes.'], correct: 3,
+    explanation: 'Los forwards suelen negociarse de forma bilateral en el mercado extrabursátil (OTC), con cantidades, fechas y precios acordados por las partes.'
+  },
+  {
+    topic: 'Riesgos',
+    q: 'En un forward bilateral sin garantías ni compensación central, ¿qué riesgo surge si la otra parte no cumple?',
+    options: ['Riesgo de contraparte.', 'Riesgo de inflación exclusivamente.', 'Riesgo de dilución accionaria.', 'Riesgo de cambio de administrador del índice.'], correct: 0,
+    explanation: 'El riesgo de contraparte consiste en que la otra parte del contrato incumpla sus obligaciones de pago o entrega.'
+  },
+  {
+    topic: 'Futuros',
+    q: '¿Qué distingue generalmente a un contrato de futuros negociado en bolsa frente a un forward bilateral?',
+    options: ['El futuro nunca genera pérdidas.', 'Se estandariza y cuenta con compensación central.', 'El comprador siempre paga una prima por un derecho.', 'No existe obligación contractual de liquidación.'], correct: 1,
+    explanation: 'Los futuros tienen especificaciones estandarizadas y una cámara de compensación que administra garantías y liquidaciones, reduciendo el riesgo de contraparte.'
+  },
+  {
+    topic: 'Futuros',
+    q: 'En la negociación de futuros, ¿para qué sirve principalmente el margen inicial?',
+    options: ['Para pagar todos los intereses de un préstamo.', 'Para recibir dividendos por anticipado.', 'Como garantía exigida para abrir una posición.', 'Como precio fijo de compra del subyacente.'], correct: 2,
+    explanation: 'El margen inicial es una garantía requerida para abrir una posición en futuros; no equivale al valor total del contrato ni es una prima de opción.'
+  },
+  {
+    topic: 'Opciones',
+    q: '¿Qué derecho adquiere el comprador de una opción call?',
+    options: ['El derecho a vender el activo al precio de ejercicio.', 'La obligación de vender el activo al vencimiento.', 'El derecho a intercambiar intereses de dos préstamos.', 'El derecho a comprar el activo al precio de ejercicio.'], correct: 3,
+    explanation: 'La call otorga al comprador el derecho, pero no la obligación, de comprar el subyacente a un precio de ejercicio determinado.'
+  },
+  {
+    topic: 'Opciones',
+    q: 'Un inversionista posee acciones y quiere limitar la pérdida ante una caída de su precio sin venderlas inmediatamente. ¿Qué instrumento puede contratar?',
+    options: ['Una opción put comprada.', 'Una opción call vendida sin cobertura.', 'Un swap de divisas.', 'Un futuro comprado sobre el mismo activo.'], correct: 0,
+    explanation: 'La put comprada da el derecho a vender a un precio pactado y puede emplearse como protección de una cartera accionaria.'
+  },
+  {
+    topic: 'Opciones',
+    q: '¿Qué representa la prima para el comprador de una opción?',
+    options: ['La garantía de que siempre ganará dinero.', 'El importe pagado por adquirir el derecho contractual.', 'El precio de mercado futuro del activo.', 'La tasa variable de un swap.'], correct: 1,
+    explanation: 'La prima es el precio de adquisición de la opción. Para el comprador, constituye el costo inicial y, en una posición larga simple, su pérdida máxima por el contrato.'
+  },
+  {
+    topic: 'Ejercicio numérico: opciones',
+    q: 'Se compra una call sobre 100 acciones con precio de ejercicio de $100 por acción y prima de $8 por acción. Si al vencimiento la acción vale $125, ¿cuál es el resultado neto del comprador, sin comisiones?',
+    options: ['Ganancia de $2,500.', 'Pérdida de $800.', 'Ganancia de $1,700.', 'Ganancia de $800.'], correct: 2,
+    explanation: 'Ganancia intrínseca: ($125 − $100) × 100 = $2,500. Prima pagada: $8 × 100 = $800. Resultado neto: $2,500 − $800 = $1,700.'
+  },
+  {
+    topic: 'Swaps',
+    q: 'Una empresa tiene deuda a tasa variable y busca estabilizar su costo financiero. ¿Qué estructura de swap puede utilizar?',
+    options: ['Pagar la tasa variable y recibir una tasa fija.', 'Pagar y recibir exclusivamente el principal del préstamo.', 'Comprar una put sobre acciones para convertir la deuda.', 'Pagar una tasa fija y recibir la tasa variable de referencia.'], correct: 3,
+    explanation: 'Un swap de tasa donde la empresa paga fijo y recibe variable puede compensar el componente variable de su deuda original, si ambas referencias coinciden.'
+  },
+  {
+    topic: 'Ejercicio numérico: swaps',
+    q: 'Una empresa tiene un crédito de $5,000,000 que cobra tasa variable del 6% + 2%. Contrata un swap donde paga 7% fijo y recibe 6% variable, aplicado al mismo nominal durante un año. ¿Cuál es el costo neto anual total, sin comisiones?',
+    options: ['$400,000.', '$350,000.', '$600,000.', '$450,000.'], correct: 3,
+    explanation: 'Intereses del crédito: $5,000,000 × 8% = $400,000. Swap: paga $350,000 y recibe $300,000. Costo total: $400,000 + $350,000 − $300,000 = $450,000.'
+  },
+  {
+    topic: 'Derivados avanzados',
+    q: 'Una empresa endeudada a tasa variable quiere protección si la tasa supera un techo, pero desea beneficiarse si disminuye. ¿Qué derivado es apropiado?',
+    options: ['Un floor comprado sobre la tasa.', 'Un cap comprado sobre la tasa.', 'Un CDS sobre bonos corporativos.', 'Una swaption que obliga al ejercicio desde el inicio.'], correct: 1,
+    explanation: 'El cap comprado compensa aumentos por encima del nivel pactado, pero permite aprovechar las disminuciones de la tasa variable, sujeto al pago de la prima.'
+  },
+  {
+    topic: 'Mercado mexicano',
+    q: '¿Qué función cumple MexDer dentro del mercado mexicano de derivados?',
+    options: ['Determinar la tasa de interés de referencia de todos los bancos.', 'Asegurar que cada inversión en derivados genere utilidades.', 'Organizar la negociación de instrumentos derivados estandarizados.', 'Sustituir al Banco de México en la política monetaria.'], correct: 2,
+    explanation: 'MexDer es el mercado organizado de derivados en México. La cámara de compensación Asigna administra la compensación y liquidación de los contratos admitidos.'
+  }
+];
+
+const letters = ['A','B','C','D'];
+let current = 0;
+let answers = Array(questions.length).fill(null);
+const el = id => document.getElementById(id);
+
+function render() {
+  const item = questions[current];
+  const answered = answers.filter(answer => answer !== null).length;
+  el('questionIndex').textContent = `Pregunta ${current + 1} de ${questions.length}`;
+  el('answerCount').textContent = `${answered} de ${questions.length} respondidas`;
+  el('progress').setAttribute('aria-valuenow', String(answered));
+  el('progressFill').style.width = `${answered * 100 / questions.length}%`;
+  el('category').textContent = item.topic;
+  el('questionText').textContent = item.q;
+  el('options').replaceChildren();
+  item.options.forEach((option, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'option' + (answers[current] === index ? ' selected' : '');
+    button.setAttribute('aria-pressed', String(answers[current] === index));
+    const badge = document.createElement('span'); badge.className = 'letter'; badge.textContent = letters[index];
+    const text = document.createElement('span'); text.textContent = option;
+    button.append(badge, text);
+    button.addEventListener('click', () => { answers[current] = index; render(); });
+    el('options').appendChild(button);
+  });
+  el('previous').disabled = current === 0;
+  el('next').textContent = current === questions.length - 1 ? 'Finalizar y calificar' : 'Siguiente →';
+}
+
+function appendLine(card, label, value) {
+  const line = document.createElement('p');
+  const strong = document.createElement('strong'); strong.textContent = label;
+  line.append(strong, document.createTextNode(value));
+  card.appendChild(line);
+}
+
+function showResults() {
+  const score = questions.reduce((sum, q, index) => sum + (answers[index] === q.correct ? 1 : 0), 0);
+  const percent = Math.round(score / questions.length * 100);
+  const student = el('studentName').value.trim();
+  el('score').textContent = `${score} / ${questions.length}`;
+  el('resultMessage').textContent = `Calificación: ${percent}% · ${score} respuestas correctas y ${questions.length - score} incorrectas.`;
+  el('resultMeta').textContent = `${student ? student + ' · ' : ''}${new Date().toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})}`;
+  const review = el('review'); review.replaceChildren();
+  questions.forEach((q, index) => {
+    const correct = answers[index] === q.correct;
+    const card = document.createElement('article'); card.className = `review-card ${correct ? 'good' : 'bad'}`;
+    const status = document.createElement('span'); status.className = `status ${correct ? 'good' : 'bad'}`; status.textContent = correct ? 'RESPUESTA CORRECTA' : 'RESPUESTA INCORRECTA';
+    const title = document.createElement('h3'); title.textContent = `${index + 1}. ${q.q}`;
+    card.append(status,title);
+    appendLine(card, 'Tu respuesta: ', q.options[answers[index]]);
+    if (!correct) appendLine(card, 'Respuesta correcta: ', q.options[q.correct]);
+    const explanation = document.createElement('p'); explanation.className = 'explanation'; explanation.textContent = q.explanation;
+    card.appendChild(explanation); review.appendChild(card);
+  });
+  el('exam').classList.add('hidden');
+  el('intro').classList.add('hidden');
+  el('results').classList.remove('hidden');
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+el('previous').addEventListener('click', () => { if(current > 0) { current--; render(); el('questionText').focus(); }});
+el('next').addEventListener('click', () => {
+  if(current < questions.length-1) {current++; render(); el('questionText').focus(); return;}
+  const missing = answers.findIndex(a => a === null);
+  if(missing !== -1) { alert(`Falta responder la pregunta ${missing+1}. Se abrirá para que puedas contestarla.`); current=missing; render(); el('questionText').focus(); return; }
+  showResults();
+});
+el('restart').addEventListener('click', () => {
+  current=0; answers=Array(questions.length).fill(null);
+  el('results').classList.add('hidden'); el('exam').classList.remove('hidden'); el('intro').classList.remove('hidden');
+  render(); window.scrollTo({top:0, behavior:'instant'});
+});
+el('print').addEventListener('click', () => window.print());
+render();
+</script>
+</body>
+</html>
